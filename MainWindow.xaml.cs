@@ -14,6 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.IO;
+using Microsoft.VisualBasic.FileIO;
 
 namespace DigitalDataCopy
 {
@@ -71,32 +72,24 @@ namespace DigitalDataCopy
                 var SourceFolderPath = $"{FolderFromTextBox.Text.Trim()}\\{subFolder}";
                 var targetFolderPath = $"{FolderToTextBox.Text.Trim()}\\{subFolder}";
 
-                if (CanCopyFolder(SourceFolderPath) == false)
-                {
-                    return;
-                }
+                var excelFileExt = ExcelExtendsionTextBox.Text.Trim();
+                var excelFileName = $"{xlsPrefixTextBox.Text.Trim()}{xlsPostfixTextBox.Text.Trim()}{excelFileExt}";
+                var SourceExcelFile = $"{xlsFromTextBox.Text.Trim()}\\{excelFileName}";
+                var TargetxcelFile = $"{xlsToTextBox.Text.Trim()}\\{excelFileName}";
 
-                if (Directory.Exists(targetFolderPath) == false)
-                {
-                    Directory.CreateDirectory(targetFolderPath);
-                }
+                CanCopy(SourceFolderPath, SourceExcelFile);
 
-                foreach (string filename in Directory.EnumerateFiles(SourceFolderPath))
-                {
-                    using (FileStream SourceStream = File.Open(filename, FileMode.Open))
-                    {
-                        var ShortName = filename.Substring(filename.LastIndexOf('\\'));
-                        using (FileStream DestinationStream = File.Create(targetFolderPath + ShortName))
-                        {
-                            await SourceStream.CopyToAsync(DestinationStream);
-                        }
-                    }
-                }
-                MessageBox.Show("Copy Successfuly", "Copy",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+                Directory.CreateDirectory(targetFolderPath);
+
+                await  Task.Run(() => FileSystem.CopyFile(SourceExcelFile, TargetxcelFile, 
+                                                           UIOption.AllDialogs, UICancelOption.DoNothing));
+
+                await Task.Run(() => FileSystem.CopyDirectory(SourceFolderPath,
+                                                               targetFolderPath,
+                                                               UIOption.AllDialogs,
+                                                               UICancelOption.DoNothing));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Copy", MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -108,23 +101,26 @@ namespace DigitalDataCopy
 
         }
 
-        public bool CanCopyFolder(string subFolderPath)
+        public void CanCopy(string subFolderPath, string sourceExcelFile)
         {
             var checkStr = CheckEmptyTextBox();
             if (checkStr != string.Empty)
             {
-                MessageBox.Show(checkStr, "Copy", MessageBoxButton.OK, MessageBoxImage.Information);
-                return false;
-            }
 
-            return true;
+                throw new Exception(checkStr);
+            }
 
             if (Directory.Exists(subFolderPath) == false)
             {
-                MessageBox.Show("Target Sub Folder Not Exits", "Copy", MessageBoxButton.OK, MessageBoxImage.Information);
-                return false;
+
+                throw new Exception($"Source Sub Folder Not Exits: {subFolderPath}");
             }
 
+            if (File.Exists(sourceExcelFile) == false)
+            {
+
+                throw new Exception($"Source Excel File Not Exits: {sourceExcelFile}");
+            }
 
         }
         private string CheckEmptyTextBox()
@@ -141,10 +137,50 @@ namespace DigitalDataCopy
 
             if (FolderToTextBox.Text == string.Empty)
             {
-                return "Target Folder Not Exits";
+                return "Please Input Source Folder First";
+            }
+            if (xlsFromTextBox.Text == string.Empty)
+            {
+                return "Please Input Source Excel Folder First";
+            }
+            if (xlsPrefixTextBox.Text == string.Empty)
+            {
+                return "Please Input Prefix Excel File Name First";
+            }
+            if (xlsPostfixTextBox.Text == string.Empty)
+            {
+                return "Please Input Postfix Excel File Name First";
+            }
+            if (xlsToTextBox.Text == string.Empty)
+            {
+                return "Please Input Target Excel Folder First";
+
             }
 
             return string.Empty;
+        }
+
+        private void SubfolderPrefixTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (AutoFillExcelNameCheckBox.IsChecked == true)
+            {
+                xlsPrefixTextBox.Text = SubfolderPrefixTextBox.Text;
+            }
+
+        }
+
+        private void SubfolderPostFixTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (AutoFillExcelNameCheckBox.IsChecked == true)
+            {
+                xlsPostfixTextBox.Text = SubfolderPostFixTextBox.Text;
+            }
+
+        }
+
+        private void ContactButton_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("If You Need Support, Please Email To hieutrinh87@gmail.com\nThanks", "Question", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }

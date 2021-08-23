@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DigitalDataCopy"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="775" WindowStartupLocation="CenterScreen">
+        Title="MainWindow" Height="460" Width="775" WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <Style TargetType="TextBox">
             <Setter Property="Padding" Value="0,3.5,0,0"></Setter>
@@ -17,7 +17,7 @@
         </Style>
     </Window.Resources>
     <Grid ShowGridLines="False">
-       
+
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="100" />
             <ColumnDefinition Width="4*" />
@@ -25,7 +25,8 @@
             <ColumnDefinition Width="100" />
             <ColumnDefinition Width="10" />
             <ColumnDefinition Width="80" />
-            <ColumnDefinition Width="30"/>
+            <ColumnDefinition Width="10"/>
+            <!--<ColumnDefinition Width="10"/>-->
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions >
             <RowDefinition  Height="27.5"/>
@@ -41,41 +42,50 @@
             <RowDefinition  Height="*"/>
         </Grid.RowDefinitions>
 
-        <Label Grid.Row="0" Content="DIGITAL DATA COPY SUPPORTER" FontWeight="Bold" FontSize="15" Grid.ColumnSpan="6" HorizontalAlignment="Center" VerticalAlignment="Center" />
-        <Label Grid.Row="1" Grid.Column="3" 
-               Content="Sub Foder" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="0,-5,0,0" />
+        <Label Grid.Row="0" Content="COPY DIGITAL DATA SUPPORTER" FontWeight="Bold" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Margin="142,0,43,0" />
+        <Button Content="?" x:Name="ContactButton" Click="ContactButton_Click" Background="White" 
+                BorderThickness="0" Grid.Column="5" Grid.Row="0" Width="35" Height="20"/>
+        <Label Grid.Column="3" 
+               Content="Sub Foder" HorizontalAlignment="Left" Margin="0,23,0,0" Grid.RowSpan="2" />
 
-        <Button x:Name="FolderFromButton" Click="FolderFromButton_Click" Grid.Row="2" Grid.Column="0" Content="Folder From" />
-        <TextBox x:Name="FolderFromTextBox" Grid.Row="2" Grid.Column="1" />
-        <TextBox x:Name="SubfolderPrefixTextBox" Grid.Row="2" Grid.Column="3" Height="27.5" Padding="0,3.5,0,0"/>
-        <TextBox x:Name="SubfolderPostFixTextBox" Grid.Row="2" Grid.Column="5" />
-        <Label Grid.Row="3" Grid.Column="3" 
-               Content="Excel File" Grid.ColumnSpan="4" HorizontalAlignment="Left" Margin="0,-5,0,0" />
-        <Button  x:Name="xlsFromButton" Click="xlsFromButton_Click" Grid.Row="4" Grid.Column="0" Content="*.xls From"/>
-        <TextBox x:Name="xlsFromTextBox" Grid.Row="4" Grid.Column="1"  />
-        <TextBox  Grid.Row="4" Grid.Column="3" />
-        <TextBox  Grid.Row="4" Grid.Column="5" />
-        <Label Content= ".xls"  Grid.Row="4" Grid.Column="6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Button x:Name="FolderFromButton" Click="FolderFromButton_Click" Grid.Row="2" Grid.Column="0" Content="Folder From" Margin="10,8" />
+        <TextBox x:Name="FolderFromTextBox" Grid.Row="2" Grid.Column="1" Margin="0,8" />
+        <TextBox x:Name="SubfolderPrefixTextBox" Grid.Row="2" 
+                 TextChanged="SubfolderPrefixTextBox_TextChanged"
+                 Grid.Column="3" Height="27.5" Padding="0,3.5,0,0" Margin="0,8"/>
+        <TextBox x:Name="SubfolderPostFixTextBox" Grid.Row="2" Grid.Column="5" TextChanged="SubfolderPostFixTextBox_TextChanged" Margin="0,8"/>
+        <Label Grid.Row="2" Grid.Column="3" 
+               Content="Excel File" HorizontalAlignment="Left" Margin="0,39,0,0" Grid.RowSpan="2" />
+        <TextBox Text= ".xls" Name="ExcelExtendsionTextBox" Grid.Row="2" Grid.Column="5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="80" Height="20" Padding="0,0,0,2.5" Grid.RowSpan="3" />
 
-        <Button x:Name="FolderToButton" Click="FolderToButton_Click" Grid.Row="5" Grid.Column="0" Content="Folder To"/>
-        <TextBox x:Name="FolderToTextBox" Grid.Row="5" Grid.Column="1" />
-        
-        <Button Name="xlsToButton" Click="xlsToButton_Click" Grid.Row="6" Grid.Column="0" Content="*.xls To"/>
-        <TextBox x:Name="xlsToTextBox"  Grid.Row="6" Grid.Column="1" />
+        <Button  x:Name="xlsFromButton" Click="xlsFromButton_Click" Grid.Row="4" Grid.Column="0" Content="*.xls From" Margin="10,8" />
+        <TextBox x:Name="xlsFromTextBox" Grid.Row="4" Grid.Column="1" Margin="0,8"  />
+        <TextBox x:Name="xlsPrefixTextBox" Grid.Row="4" Grid.Column="3" Margin="0,8" />
+        <TextBox x:Name="xlsPostfixTextBox" Grid.Row="4" Grid.Column="5" Margin="0,8" />
+
+        <Button x:Name="FolderToButton" Click="FolderToButton_Click" Grid.Row="5" Grid.Column="0" Content="Folder To" Margin="10,8"/>
+        <TextBox x:Name="FolderToTextBox" Grid.Row="5" Grid.Column="1" Margin="0,8" />
+
+        <Button Name="xlsToButton" Click="xlsToButton_Click" Grid.Row="6" Grid.Column="0" Content="*.xls To" Margin="10,8"/>
+        <TextBox x:Name="xlsToTextBox"  Grid.Row="6" Grid.Column="1" Margin="0,8" />
 
         <Button x:Name="CopyButton" Click="CopyButton_Click" Grid.Row="7" Grid.Column="1" 
-                Content="Press Enter Or Click To Copy" Grid.ColumnSpan="5" Margin="0"
+                Content="Press Enter Or Click To Copy" Grid.ColumnSpan="5" Margin="0,8"
                 IsDefault="True"
                 />
 
-        <Label Grid.Row="8" Grid.Column="1" Content="Print Sccreen" Margin="0,-5,0,0" />
-        <Label Grid.Row="8" Grid.Column="3" Content="Sub Folder" HorizontalAlignment="Left" Margin="0,-5,0,0" />
+        <Label Grid.Row="7" Grid.Column="1" Content="Print Sccreen" Margin="0,38,0,0" Grid.RowSpan="2" />
+        <Label Grid.Row="7" Grid.Column="3" Content="Sub Folder" HorizontalAlignment="Left" Margin="0,38,0,0" Grid.RowSpan="2" />
 
-        <Button Grid.Row="9" Grid.Column="0" Content="From" />
-        <TextBox  Grid.Row="9" Grid.Column="1" />
-        <TextBox  Grid.Row="9" Grid.Column="3" />
-        <TextBox  Grid.Row="9" Grid.Column="5" />
-        <Button Grid.Row="10" Grid.Column="3" Content="Luu MH SOL" Margin="0"/>
-        <Button Grid.Row="10" Grid.Column="5" Content="Luu MH EOL" Margin="0"/>
+        <Button Grid.Row="9" Grid.Column="0" Content="From" Margin="10,11" />
+        <TextBox  Grid.Row="9" Grid.Column="1" Margin="0,11" />
+        <TextBox  Grid.Row="9" Grid.Column="3" Margin="0,11" />
+        <TextBox  Grid.Row="9" Grid.Column="5" Margin="0,11" />
+
+        <CheckBox x:Name="AutoFillExcelNameCheckBox" Content="Auto Fill Excel File Name With Sub Folder Name" Margin="10,23,0,23"
+                  Grid.Row="10" Grid.Column="0"
+                  VerticalAlignment="Center" Grid.ColumnSpan="2" IsChecked="True"/>
+        <Button Grid.Row="10" Grid.Column="3" Content="Luu MH SOL" Margin="0,17"/>
+        <Button Grid.Row="10" Grid.Column="5" Content="Luu MH EOL" Margin="0,17"/>
     </Grid>
 </Window>
