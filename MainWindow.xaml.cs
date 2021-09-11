@@ -310,8 +310,27 @@ namespace DigitalDataCopy
         private void save_ScreenShot_as_File(string FilePreFix)
 
         {
-            var MainFolder = PrintSreenFolderTextBox.Text.Trim();
 
+
+
+            if (PrintSreenFolderTextBox.Text.Trim() == string.Empty)
+            {
+                throw new Exception($"Please Input Screen Folder First");
+
+            }
+
+            if (PrefixScreenFileTextBox.Text == string.Empty)
+            {
+                throw new Exception($"Please Input Screen Sub Folder First");
+
+            }
+            if (PostfixScreenFileTextBox.Text == string.Empty)
+            {
+                throw new Exception($"Please Input Screen Sub Folder First");
+
+            }
+
+            var MainFolder = PrintSreenFolderTextBox.Text.Trim();
             if (Directory.Exists(MainFolder) == false)
             {
                 throw new Exception($"The Folder Path Not Exists: {MainFolder}");
@@ -320,8 +339,6 @@ namespace DigitalDataCopy
             var Subfolder = PrefixScreenFileTextBox.Text.Trim() + PostfixScreenFileTextBox.Text.Trim();
 
             var FullFolderPath = MainFolder + "\\" + Subfolder;
-
-
             
             var FileName = $"{FilePreFix}_{DateTime.Now.ToString("ddMMyyyy_hhmmss")}.png";
             var FullFileName = $"{MainFolder}\\{Subfolder}\\{FileName}";
