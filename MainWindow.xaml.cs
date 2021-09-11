@@ -65,34 +65,22 @@ namespace DigitalDataCopy
             MyOpenFolder(sender, e, xlsToTextBox);
         }
 
-        private async void CopyButton_Click(object sender, RoutedEventArgs e)
+        private async void CopyAllButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
                 SaveConfig();
-                CopyButton.IsEnabled = false;
-                CopyButton.Content = "COPYING...";
+                CopyAllButton.IsEnabled = false;
+                CopyDataButton.IsEnabled = false;
+                CopyExcelButton.IsEnabled = false;
 
-                var subFolder = $"{ SubfolderPrefixTextBox.Text.Trim() }{ SubfolderPostFixTextBox.Text.Trim()}";
-                var SourceFolderPath = $"{FolderFromTextBox.Text.Trim()}\\{subFolder}";
-                var targetFolderPath = $"{FolderToTextBox.Text.Trim()}\\{subFolder}";
+                CheckBeforeCopyData();
+                CheckBeforeCopyExcelFile();
 
-                var excelFileExt = ExcelExtendsionTextBox.Text.Trim();
-                var excelFileName = $"{xlsPrefixTextBox.Text.Trim()}{xlsPostfixTextBox.Text.Trim()}{excelFileExt}";
-                var SourceExcelFile = $"{xlsFromTextBox.Text.Trim()}\\{excelFileName}";
-                var TargetxcelFile = $"{xlsToTextBox.Text.Trim()}\\{excelFileName}";
-
-                CanCopy(SourceFolderPath, SourceExcelFile);
-
-                Directory.CreateDirectory(targetFolderPath);
-
-                await Task.Run(() => FileSystem.CopyFile(SourceExcelFile, TargetxcelFile,
-                                                          UIOption.AllDialogs, UICancelOption.DoNothing));
-
-                await Task.Run(() => FileSystem.CopyDirectory(SourceFolderPath,
-                                                               targetFolderPath,
-                                                               UIOption.AllDialogs,
-                                                               UICancelOption.DoNothing));
+                await CopyData();
+                await CopyExcel();
+                await Task.Delay(1000);
+                MessageBox.Show("Data and Excel file is copied", "Copy", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -100,89 +88,197 @@ namespace DigitalDataCopy
             }
             finally
             {
-                CopyButton.IsEnabled = true;
-                CopyButton.Content = "Press Enter Or Click To Copy";
+                CopyAllButton.IsEnabled = true;
+                CopyDataButton.IsEnabled = true;
+                CopyExcelButton.IsEnabled = true;
             }
-
         }
-
-        public void CanCopy(string subFolderPath, string sourceExcelFile)
+        private async void CopyDataButton_Click(object sender, RoutedEventArgs e)
         {
-            var checkStr = CheckEmptyTextBox();
-            if (checkStr != string.Empty)
+            try
             {
+                SaveConfig();
+                CopyDataButton.IsEnabled = false;
 
-                throw new Exception(checkStr);
+                CheckBeforeCopyData();
+                await CopyData();
+                await Task.Delay(1000);
+                MessageBox.Show("Data is copied", "Copy", MessageBoxButton.OK, MessageBoxImage.Information);
             }
-
-            if (Directory.Exists(subFolderPath) == false)
+            catch (Exception ex)
             {
-
-                throw new Exception($"Source Sub Folder Not Exits: {subFolderPath}");
+                MessageBox.Show(ex.Message, "Copy", MessageBoxButton.OK, MessageBoxImage.Information);
             }
-
-            if (File.Exists(sourceExcelFile) == false)
+            finally
             {
-
-                throw new Exception($"Source Excel File Not Exits: {sourceExcelFile}");
+                CopyDataButton.IsEnabled = true;
             }
-
         }
-        private string CheckEmptyTextBox()
+
+        public void CheckBeforeCopyData()
         {
             if (FolderFromTextBox.Text == string.Empty)
             {
-                return "Please Input Folder From First";
+                throw new Exception("Please Input Folder From First");
+            }
+
+            if (Directory.Exists(FolderFromTextBox.Text) == false)
+            {
+                throw new Exception($"Source Sub Folder Not Exits: {FolderFromTextBox.Text}");
             }
 
             if (SubfolderPrefixTextBox.Text == string.Empty || SubfolderPostFixTextBox.Text == string.Empty)
             {
-                return "Please Input Sub Folder First";
+                throw new Exception("Please Input Sub Folder First");
+            }
+
+            var subFolder = $"{ SubfolderPrefixTextBox.Text.Trim() }{ SubfolderPostFixTextBox.Text.Trim()}";
+            var SourceFolderPath = $"{FolderFromTextBox.Text.Trim()}\\{subFolder}";
+
+            if (Directory.Exists(SourceFolderPath) == false)
+            {
+                throw new Exception($"Source Sub Folder Not Exits: {SourceFolderPath}");
             }
 
             if (FolderToTextBox.Text == string.Empty)
             {
-                return "Please Input Source Folder First";
+                throw new Exception("Please Input Source Folder First");
             }
+            if (Directory.Exists(FolderToTextBox.Text.Trim()) == false)
+            {
+                throw new Exception($"Target Folder Not Exits: {FolderToTextBox.Text.Trim()}");
+            }
+        }
+
+        public async Task<bool> CopyData()
+        {
+            try
+            {
+                var subFolder = $"{ SubfolderPrefixTextBox.Text.Trim() }{ SubfolderPostFixTextBox.Text.Trim()}";
+                var SourceFolderPath = $"{FolderFromTextBox.Text.Trim()}\\{subFolder}";
+                var targetFolderPath = $"{FolderToTextBox.Text.Trim()}\\{subFolder}";
+
+                Directory.CreateDirectory(targetFolderPath);
+                await Task.Run(() => FileSystem.CopyDirectory(SourceFolderPath,
+                                                   targetFolderPath,
+                                                   UIOption.AllDialogs,
+                                                   UICancelOption.DoNothing));
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        private async void CopyExcelButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                SaveConfig();
+                CopyExcelButton.IsEnabled = false;
+
+                CheckBeforeCopyExcelFile();
+                await CopyExcel();
+                await Task.Delay(1000);
+                MessageBox.Show("Excel file is copied", "Copy", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Copy", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            finally
+            {
+                CopyExcelButton.IsEnabled = true;
+            }
+        }
+
+        private void CheckBeforeCopyExcelFile()
+        {
+
             if (xlsFromTextBox.Text == string.Empty)
             {
-                return "Please Input Source Excel Folder First";
+                throw new Exception("Please Input Source Excel Folder First");
+            }
+            if (Directory.Exists(xlsFromTextBox.Text) == false)
+            {
+                throw new Exception($"Source Excel Folder Not Exits: {xlsFromTextBox.Text}");
             }
             if (xlsPrefixTextBox.Text == string.Empty)
             {
-                return "Please Input Prefix Excel File Name First";
+                throw new Exception("Please Input Prefix Excel File Name First");
             }
             if (xlsPostfixTextBox.Text == string.Empty)
             {
-                return "Please Input Postfix Excel File Name First";
+                throw new Exception("Please Input Postfix Excel File Name First");
             }
-            if (xlsToTextBox.Text == string.Empty)
+
+
+            var excelFileExt = ExcelExtendsionTextBox.Text.Trim();
+            var excelFileName = $"{xlsPrefixTextBox.Text.Trim()}{xlsPostfixTextBox.Text.Trim()}{excelFileExt}";
+            var sourceExcelFile = $"{xlsFromTextBox.Text.Trim()}\\{excelFileName}";
+
+            if (File.Exists(sourceExcelFile) == false)
             {
-                return "Please Input Target Excel Folder First";
-
+                throw new Exception($"Source Excel File Not Exits: {sourceExcelFile}");
             }
 
-            return string.Empty;
+            if (xlsToTextBox.Text.Trim() == string.Empty)
+            {
+                throw new Exception("Please Input Target Excel Folder First");
+            }
+            if (Directory.Exists(xlsToTextBox.Text) == false)
+            {
+                throw new Exception($"Target Excel Folder Not Exits: {xlsToTextBox.Text}");
+            }
         }
+        public async Task<bool> CopyExcel()
+        {
+            try
+            {
+                var excelFileExt = ExcelExtendsionTextBox.Text.Trim();
+                var excelFileName = $"{xlsPrefixTextBox.Text.Trim()}{xlsPostfixTextBox.Text.Trim()}{excelFileExt}";
+                var SourceExcelFile = $"{xlsFromTextBox.Text.Trim()}\\{excelFileName}";
+                var TargetxcelFile = $"{xlsToTextBox.Text.Trim()}\\{excelFileName}";
+
+
+                await Task.Run(() => FileSystem.CopyFile(SourceExcelFile, TargetxcelFile,
+                                                          UIOption.AllDialogs, UICancelOption.DoNothing));
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
         private void SubfolderPrefixTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (AutoFillExcelNameCheckBox.IsChecked == true)
             {
                 xlsPrefixTextBox.Text = SubfolderPrefixTextBox.Text;
-                PrefixScreenFileTextBox.Text = SubfolderPrefixTextBox.Text;
             }
 
+            if (AutoFillImageNameCheckBox.IsChecked == true)
+            {
+                PrefixScreenFileTextBox.Text = SubfolderPrefixTextBox.Text;
+            }
         }
+
 
         private void SubfolderPostFixTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (AutoFillExcelNameCheckBox.IsChecked == true)
             {
                 xlsPostfixTextBox.Text = SubfolderPostFixTextBox.Text;
-                PostfixScreenFileTextBox.Text = SubfolderPostFixTextBox.Text;
+
             }
 
+            if (AutoFillImageNameCheckBox.IsChecked == true)
+            {
+                PostfixScreenFileTextBox.Text = SubfolderPostFixTextBox.Text;
+            }
         }
 
         private void ContactButton_Click(object sender, RoutedEventArgs e)
@@ -221,7 +317,8 @@ namespace DigitalDataCopy
             _config.PrefixScreenFile = PrefixScreenFileTextBox.Text;
             _config.PostfixScreenFile = PostfixScreenFileTextBox.Text;
 
-            _config.AutoFill = (bool)AutoFillExcelNameCheckBox.IsChecked;
+            _config.AutoFillExcel = (bool)AutoFillExcelNameCheckBox.IsChecked;
+            _config.AutoFillImage = (bool)AutoFillImageNameCheckBox.IsChecked;
 
             string ConfigStr = JsonConvert.SerializeObject(_config);
 
@@ -254,24 +351,45 @@ namespace DigitalDataCopy
                 PrintSreenFolderTextBox.Text = _config.PrintSreenFolder;
                 PrefixScreenFileTextBox.Text = _config.PrefixScreenFile;
                 PostfixScreenFileTextBox.Text = _config.PostfixScreenFile;
-                AutoFillExcelNameCheckBox.IsChecked = _config.AutoFill;
+                AutoFillExcelNameCheckBox.IsChecked = _config.AutoFillExcel;
+                AutoFillImageNameCheckBox.IsChecked = _config.AutoFillImage;
             }
         }
 
         private void AutoFillExcelNameCheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            EnableOfDisableTextbox(false);
+            EnableOfDisableExcelTextbox(false);
+
+            xlsPrefixTextBox.Text = SubfolderPrefixTextBox.Text;
+            xlsPostfixTextBox.Text = SubfolderPostFixTextBox.Text;
         }
 
 
         private void AutoFillExcelNameCheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
-            EnableOfDisableTextbox(true);
+            EnableOfDisableExcelTextbox(true);
         }
-        private void EnableOfDisableTextbox(bool Status)
+        private void EnableOfDisableExcelTextbox(bool Status)
         {
             xlsPrefixTextBox.IsEnabled = Status;
             xlsPostfixTextBox.IsEnabled = Status;
+        }
+
+        private void AutoFillImageNameCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            EnableOfDisableImageTexttbox(false);
+            PrefixScreenFileTextBox.Text = SubfolderPrefixTextBox.Text;
+            PostfixScreenFileTextBox.Text = SubfolderPostFixTextBox.Text;
+            PostfixScreenFileTextBox.Text = SubfolderPostFixTextBox.Text;
+        }
+
+        private void AutoFillImageNameCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            EnableOfDisableImageTexttbox(true);
+        }
+
+        private void EnableOfDisableImageTexttbox(bool Status)
+        {
             PostfixScreenFileTextBox.IsEnabled = Status;
             PrefixScreenFileTextBox.IsEnabled = Status;
         }
@@ -288,12 +406,11 @@ namespace DigitalDataCopy
                 SaveConfig();
                 save_ScreenShot_as_File("SOL");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                MessageBox.Show(ex.Message , "Screen Shot", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(ex.Message, "Screen Shot", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
-
         private void EolButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -310,9 +427,6 @@ namespace DigitalDataCopy
         private void save_ScreenShot_as_File(string FilePreFix)
 
         {
-
-
-
             if (PrintSreenFolderTextBox.Text.Trim() == string.Empty)
             {
                 throw new Exception($"Please Input Screen Folder First");
@@ -339,7 +453,7 @@ namespace DigitalDataCopy
             var Subfolder = PrefixScreenFileTextBox.Text.Trim() + PostfixScreenFileTextBox.Text.Trim();
 
             var FullFolderPath = MainFolder + "\\" + Subfolder;
-            
+
             var FileName = $"{FilePreFix}_{DateTime.Now.ToString("ddMMyyyy_hhmmss")}.png";
             var FullFileName = $"{MainFolder}\\{Subfolder}\\{FileName}";
 

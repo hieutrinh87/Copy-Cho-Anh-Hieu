@@ -34,6 +34,7 @@ namespace DigitalDataCopy
 
         public string PostfixScreenFile;
 
-        public bool AutoFill;
+        public bool AutoFillExcel;
+        public bool AutoFillImage;
     }
 }
